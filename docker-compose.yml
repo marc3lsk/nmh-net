@@ -6,3 +6,8 @@ services:
     build:
       context: .
       dockerfile: WebApi/Dockerfile
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
