@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NodaTime" Version="3.1.11" />
+    <ProjectReference Include="..\Abstraction\Abstraction.csproj" />
   </ItemGroup>
 
 </Project>

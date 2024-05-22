@@ -23,15 +23,14 @@ public class MagicCalculatorTests
 
     [Theory]
     [MemberData(nameof(GetTestData), "./Features/MagicCalculation/BusinessLogic/MagicCalculatorTestData.xlsx", MemberType = typeof(MagicCalculatorTests))]
-    public void TestWithExcelValues(double inputValue, double outputValue)
+    public void TestWithExcelValues(decimal inputValue, decimal outputValue)
     {
         Math.Round(MagicCalculator.CalculateOutputValue(inputValue), 5).Should().Be(outputValue);
     }
 
-    [Theory]
-    [InlineData(0, double.PositiveInfinity)]
-    public void Zero_Should_Be_Positive_Infinity(double inputValue, double outputValue)
+    [Fact]
+    public void Zero_Should_Throw_OverflowException()
     {
-        Math.Round(MagicCalculator.CalculateOutputValue(inputValue), 5).Should().Be(outputValue);
+        Assert.Throws<OverflowException>(() => MagicCalculator.CalculateOutputValue(0));
     }
 }

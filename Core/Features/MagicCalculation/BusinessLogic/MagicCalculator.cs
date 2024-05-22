@@ -2,12 +2,12 @@
 
 public static class MagicCalculator
 {
-    public static double CalculateOutputValue(double inputValue)
+    public static decimal CalculateOutputValue(decimal inputValue)
     {
-        var naturalLog = Math.Log(inputValue);
+        var naturalLog = Math.Log(Convert.ToDouble(inputValue));
 
         var thirdRoot = Math.Pow(naturalLog, 1.0 / 3.0);
 
-        return thirdRoot;
+        return Convert.ToDecimal(thirdRoot);
     }
 }
