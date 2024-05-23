@@ -43,7 +43,7 @@ public class MagicCalculatorTests
     public void Zero_Should_Throw_InvalidOperationException()
     {
         Assert.Throws<InvalidOperationException>(
-            () => MagicCalculator.CalculateOutputValue(0, null)
+            () => MagicCalculator.CalculateOutputValue(0, default)
         );
     }
 }
