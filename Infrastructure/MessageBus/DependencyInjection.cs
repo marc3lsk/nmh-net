@@ -1,4 +1,6 @@
-﻿using Infrastructure.MessageBus.Demo;
+﻿using Abstraction.MessageBus;
+using Core.Features.MagicCalculation.BusinessLogic;
+using Core.Features.MagicCalculation.Contracts;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,25 +12,32 @@ public static class DependencyInjection
     {
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<DemoMessageConsumer>();
+            x.AddConsumer<MagicValueCalculationResultMessageConsumer>();
 
             x.UsingRabbitMq(
                 (context, cfg) =>
                 {
-                    EndpointConvention.Map<DemoMessage>(new Uri("queue:my-queue"));
+                    EndpointConvention.Map<MagicValueCalculationResultMessage>(
+                        new Uri("queue:my-queue")
+                    );
 
                     cfg.ReceiveEndpoint(
                         "my-queue",
                         e =>
                         {
-                            e.ConfigureConsumer<DemoMessageConsumer>(context);
+                            e.ConfigureConsumer<MagicValueCalculationResultMessageConsumer>(
+                                context
+                            );
                         }
                     );
                 }
             );
         });
 
-        services.AddHostedService<DemoMessageWorker>();
+        services.AddSingleton<IMessagePublisher>(sp => new RabbitMqPublisher("rabbitmq"));
+        services.AddSingleton<IMessageConsumer>(sp => new RabbitMqConsumer("rabbitmq"));
+
+        services.AddHostedService<MagicValueCalculationResultMessageConsumerWorker>();
 
         return services;
     }

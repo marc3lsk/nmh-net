@@ -12,7 +12,8 @@ public static class MagicCalculator
         var isNegative = naturalLog < 0;
 
         // Math.Pow does not know how to handle cube root of negative number,
-        // but according to online article and test excel values, we should simply compute cube root of abs number and then flip to negative
+        // but according to online article and test excel values,
+        // we should simply compute cube root of abs number and then flip to negative
         // https://study.com/skill/learn/how-to-find-the-cube-root-of-a-negative-number-explanation.html
 
         var cubeRoot = Math.Pow(Math.Abs(naturalLog), 1.0 / 3.0);

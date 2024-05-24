@@ -1,5 +1,8 @@
 ﻿using Abstraction.KeyValueStore;
+using Abstraction.MessageBus;
+using Core.Features.MagicCalculation.Contracts;
 using Core.Features.MagicCalculation.Domain;
+using MassTransit;
 using MediatR;
 using NodaTime;
 
@@ -15,11 +18,20 @@ public class MagicValueCalculationWorkflow
     {
         IClock _clock;
         IKeyValueStore<int, CalculationValue> _store;
+        IBus _bus;
+        IMessagePublisher _messagePublisher;
 
-        public RequestHandler(IClock clock, IKeyValueStore<int, CalculationValue> store)
+        public RequestHandler(
+            IClock clock,
+            IKeyValueStore<int, CalculationValue> store,
+            IBus bus,
+            IMessagePublisher messagePublisher
+        )
         {
             _clock = clock;
             _store = store;
+            _bus = bus;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
@@ -32,10 +44,13 @@ public class MagicValueCalculationWorkflow
 
                 await _store.UpsertValueAsync(request.Key, CalculationValue.GetDefault(_clock));
 
-                return new Response(
-                    computed_value: defaultValue.Value,
-                    input_value: request.InputValue,
-                    previous_value: previousOutputValue?.Value
+                return await HandleResponse(
+                    new Response(
+                        computed_value: defaultValue.Value,
+                        input_value: request.InputValue,
+                        previous_value: previousOutputValue?.Value
+                    ),
+                    cancellationToken
                 );
             }
 
@@ -46,11 +61,30 @@ public class MagicValueCalculationWorkflow
                 previousOutputValue.CalculateNextValue(_clock, request.InputValue)
             );
 
-            return new Response(
-                computed_value: nextValue.Value,
-                input_value: request.InputValue,
-                previous_value: previousOutputValue?.Value
+            return await HandleResponse(
+                new Response(
+                    computed_value: nextValue.Value,
+                    input_value: request.InputValue,
+                    previous_value: previousOutputValue?.Value
+                ),
+                cancellationToken
             );
+        }
+
+        async Task<Response> HandleResponse(Response response, CancellationToken cancellationToken)
+        {
+            await _bus.Publish(
+                new MagicValueCalculationResultMessage(
+                    computed_value: response.computed_value,
+                    input_value: response.input_value,
+                    previous_value: response.previous_value
+                ),
+                cancellationToken
+            );
+
+            _messagePublisher.Publish("my-queue-worker", $"{response.computed_value}");
+
+            return response;
         }
     }
 }

@@ -1,7 +1,10 @@
-﻿using Core.Features.MagicCalculation.BusinessLogic;
+﻿using Abstraction.MessageBus;
+using Core.Features.MagicCalculation.BusinessLogic;
 using Core.Features.MagicCalculation.Domain;
 using FluentAssertions;
 using Infrastructure.KeyValueStore;
+using MassTransit;
+using Moq;
 using NodaTime;
 using NodaTime.Testing;
 
@@ -14,7 +17,15 @@ public class MagicValueCalculationWorkflowTests
     {
         var clock = FakeClock.FromUtc(0, 01, 01, 00, 00, 00);
         var store = new KeyValueStoreInMemory<int, CalculationValue>();
-        var workflow = new MagicValueCalculationWorkflow.RequestHandler(clock, store);
+        var bus = new Mock<IBus>();
+        var messagePublisher = new Mock<IMessagePublisher>();
+
+        var workflow = new MagicValueCalculationWorkflow.RequestHandler(
+            clock,
+            store,
+            bus.Object,
+            messagePublisher.Object
+        );
 
         await workflow.Handle(
             new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
