@@ -14,15 +14,21 @@ public class MagicValueCalculationWorkflowTests
     {
         var clock = FakeClock.FromUtc(0, 01, 01, 00, 00, 00);
         var store = new KeyValueStoreInMemory<int, CalculationValue>();
-        var workflow = new MagicValueCalculationWorkflow(clock, store);
+        var workflow = new MagicValueCalculationWorkflow.RequestHandler(clock, store);
 
-        await workflow.ExecuteMagicValueCalculationAsync(1, 1);
+        await workflow.Handle(
+            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            default
+        );
 
         var storedOutputValueWithDefaultOutputValue = await store.TryGetValueAsync(1);
 
         storedOutputValueWithDefaultOutputValue!.Value.Should().Be(2);
 
-        await workflow.ExecuteMagicValueCalculationAsync(1, 1);
+        await workflow.Handle(
+            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            default
+        );
 
         var storedOutputValueAfterFirstCalculation = await store.TryGetValueAsync(1);
 
@@ -35,7 +41,10 @@ public class MagicValueCalculationWorkflowTests
 
         clock.Advance(Duration.FromSeconds(16));
 
-        await workflow.ExecuteMagicValueCalculationAsync(1, 1);
+        await workflow.Handle(
+            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            default
+        );
 
         var storedOutputValueAfterExpiration = await store.TryGetValueAsync(1);
 

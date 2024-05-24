@@ -1,51 +1,56 @@
 ﻿using Abstraction.KeyValueStore;
 using Core.Features.MagicCalculation.Domain;
+using MediatR;
 using NodaTime;
 
 namespace Core.Features.MagicCalculation.BusinessLogic;
 
 public class MagicValueCalculationWorkflow
 {
-    IClock _clock;
-    IKeyValueStore<int, CalculationValue> _store;
+    public record Request(int Key, decimal InputValue) : IRequest<Response>;
 
-    public MagicValueCalculationWorkflow(IClock clock, IKeyValueStore<int, CalculationValue> store)
+    public record Response(decimal computed_value, decimal input_value, decimal? previous_value);
+
+    public class RequestHandler : IRequestHandler<Request, Response>
     {
-        _clock = clock;
-        _store = store;
-    }
+        IClock _clock;
+        IKeyValueStore<int, CalculationValue> _store;
 
-    public async Task<MagicValueCalculationWorkflowResult> ExecuteMagicValueCalculationAsync(
-        int key,
-        decimal inputValue
-    )
-    {
-        var previousOutputValue = await _store.TryGetValueAsync(key);
-
-        if (previousOutputValue is null)
+        public RequestHandler(IClock clock, IKeyValueStore<int, CalculationValue> store)
         {
-            var defaultValue = CalculationValue.GetDefault(_clock);
+            _clock = clock;
+            _store = store;
+        }
 
-            await _store.UpsertValueAsync(key, CalculationValue.GetDefault(_clock));
+        public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
+        {
+            var previousOutputValue = await _store.TryGetValueAsync(request.Key);
 
-            return new MagicValueCalculationWorkflowResult(
-                computed_value: defaultValue.Value,
-                input_value: inputValue,
+            if (previousOutputValue is null)
+            {
+                var defaultValue = CalculationValue.GetDefault(_clock);
+
+                await _store.UpsertValueAsync(request.Key, CalculationValue.GetDefault(_clock));
+
+                return new Response(
+                    computed_value: defaultValue.Value,
+                    input_value: request.InputValue,
+                    previous_value: previousOutputValue?.Value
+                );
+            }
+
+            var nextValue = previousOutputValue.CalculateNextValue(_clock, request.InputValue);
+
+            await _store.UpsertValueAsync(
+                request.Key,
+                previousOutputValue.CalculateNextValue(_clock, request.InputValue)
+            );
+
+            return new Response(
+                computed_value: nextValue.Value,
+                input_value: request.InputValue,
                 previous_value: previousOutputValue?.Value
             );
         }
-
-        var nextValue = previousOutputValue.CalculateNextValue(_clock, inputValue);
-
-        await _store.UpsertValueAsync(
-            key,
-            previousOutputValue.CalculateNextValue(_clock, inputValue)
-        );
-
-        return new MagicValueCalculationWorkflowResult(
-            computed_value: nextValue.Value,
-            input_value: inputValue,
-            previous_value: previousOutputValue?.Value
-        );
     }
 }
