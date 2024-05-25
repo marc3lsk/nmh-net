@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Core.Migrations
 {
     [DbContext(typeof(CmsDbContext))]
-    [Migration("20240525103609_Initial")]
+    [Migration("20240525110851_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -145,7 +145,7 @@ namespace Core.Migrations
                     b.HasOne("Core.Features.CMS.Domain.Image", "Image")
                         .WithOne()
                         .HasForeignKey("Core.Features.CMS.Domain.Author", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Image");

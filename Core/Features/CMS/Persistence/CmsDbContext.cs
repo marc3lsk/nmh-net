@@ -30,7 +30,7 @@ public class CmsDbContext : DbContext
                 .HasOne(a => a.Image)
                 .WithOne()
                 .HasForeignKey<Author>(a => a.Id) // Configures Author.Id as the foreign key
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Image

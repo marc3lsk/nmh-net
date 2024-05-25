@@ -142,7 +142,7 @@ namespace Core.Migrations
                     b.HasOne("Core.Features.CMS.Domain.Image", "Image")
                         .WithOne()
                         .HasForeignKey("Core.Features.CMS.Domain.Author", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Image");
