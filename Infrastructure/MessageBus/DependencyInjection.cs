@@ -10,6 +10,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddMessageBus(this IServiceCollection services)
     {
+        // MassTransit version
+
         services.AddMassTransit(x =>
         {
             x.AddConsumer<MagicValueCalculationResultMessageConsumer>();
@@ -34,10 +36,10 @@ public static class DependencyInjection
             );
         });
 
+        // Custom low level RabbitMQ version
+
         services.AddSingleton<IMessagePublisher>(sp => new RabbitMqPublisher("rabbitmq"));
         services.AddSingleton<IMessageConsumer>(sp => new RabbitMqConsumer("rabbitmq"));
-
-        services.AddHostedService<MagicValueCalculationResultMessageConsumerWorker>();
 
         return services;
     }

@@ -1,5 +1,6 @@
 using Abstraction.KeyValueStore;
 using Core.Features.CMS.Persistence;
+using Core.Features.MagicCalculation.BusinessLogic;
 using Infrastructure.KeyValueStore;
 using Infrastructure.MessageBus;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,10 @@ builder.Services.AddMediatR(cfg =>
 );
 
 builder.Services.AddMessageBus();
+
+// Workers
+
+builder.Services.AddHostedService<MagicValueCalculationResultMessageConsumerWorker>();
 
 // ASP.NET
 
