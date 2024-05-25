@@ -13,7 +13,7 @@ public class MagicValueCalculationWorkflow
 {
     public record Request(int Key, decimal InputValue) : IRequest<Response>;
 
-    public record Response(decimal computed_value, decimal input_value, decimal? previous_value);
+    public record Response(decimal ComputedValue, decimal InputValue, decimal? PreviousValue);
 
     public class RequestHandler : IRequestHandler<Request, Response>
     {
@@ -106,9 +106,9 @@ public class MagicValueCalculationWorkflow
             _messagePublisher.Publish("my-queue-worker", nextCalculationValue.Value);
 
             return new Response(
-                computed_value: nextCalculationValue.Value,
-                input_value: request.InputValue,
-                previous_value: previousCalculationValue?.Value
+                ComputedValue: nextCalculationValue.Value,
+                InputValue: request.InputValue,
+                PreviousValue: previousCalculationValue?.Value
             );
         }
     }

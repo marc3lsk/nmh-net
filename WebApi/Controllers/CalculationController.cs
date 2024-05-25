@@ -1,11 +1,11 @@
 using Core.Features.MagicCalculation.BusinessLogic;
+using Core.Features.MagicCalculation.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class CalculationController : ControllerBase
     {
         private readonly ILogger<CalculationController> _logger;
@@ -18,9 +18,21 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public Task<MagicValueCalculationWorkflow.Response> Post()
+        [Route("calculation/{key:int}")]
+        public async Task<MagicValueCalculationEndpointResponse> Post(
+            int key,
+            [FromBody] MagicValueCalculationEndpointRequest data
+        )
         {
-            return _mediator.Send(new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1));
+            var response = await _mediator.Send(
+                new MagicValueCalculationWorkflow.Request(Key: key, InputValue: data.input)
+            );
+
+            return new MagicValueCalculationEndpointResponse(
+                computed_value: response.ComputedValue,
+                input_value: response.InputValue,
+                previous_value: response.PreviousValue
+            );
         }
     }
 }
