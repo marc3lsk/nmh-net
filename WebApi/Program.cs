@@ -1,11 +1,19 @@
 using Abstraction.KeyValueStore;
+using Core.Features.CMS.Persistence;
 using Infrastructure.KeyValueStore;
 using Infrastructure.MessageBus;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// EF
+
+builder.Services.AddDbContext<CmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+// App services
 
 builder.Services.AddSingleton<IClock>(SystemClock.Instance);
 builder.Services.AddSingleton(typeof(IKeyValueStore<,>), typeof(KeyValueStoreInMemory<,>));
@@ -16,20 +24,36 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddMessageBus();
 
+// ASP.NET
+
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ===== APP ====== //
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// DB Migrate
+
+using (var Scope = app.Services.CreateScope())
+{
+    var context = Scope.ServiceProvider.GetRequiredService<CmsDbContext>();
+    await context.Database.MigrateAsync();
+}
+
+// Swagger
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ASP.NET
 
 app.UseHttpsRedirection();
 
