@@ -8,10 +8,10 @@ namespace WebApi.Controllers
     [Route("[controller]")]
     public class CalculationController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<CalculationController> _logger;
         IMediator _mediator;
 
-        public CalculationController(ILogger<WeatherForecastController> logger, IMediator mediator)
+        public CalculationController(ILogger<CalculationController> logger, IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
