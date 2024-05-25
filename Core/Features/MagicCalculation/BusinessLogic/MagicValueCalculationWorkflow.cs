@@ -4,6 +4,7 @@ using Core.Features.MagicCalculation.Contracts;
 using Core.Features.MagicCalculation.Domain;
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 
 namespace Core.Features.MagicCalculation.BusinessLogic;
@@ -20,71 +21,95 @@ public class MagicValueCalculationWorkflow
         IKeyValueStore<int, CalculationValue> _store;
         IBus _bus;
         IMessagePublisher _messagePublisher;
+        ILogger<MagicValueCalculationWorkflow> _logger;
 
         public RequestHandler(
             IClock clock,
             IKeyValueStore<int, CalculationValue> store,
             IBus bus,
-            IMessagePublisher messagePublisher
+            IMessagePublisher messagePublisher,
+            ILogger<MagicValueCalculationWorkflow> logger
         )
         {
             _clock = clock;
             _store = store;
             _bus = bus;
             _messagePublisher = messagePublisher;
+            _logger = logger;
         }
 
         public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
         {
-            var previousOutputValue = await _store.TryGetValueAsync(request.Key);
+            var previousCalculationValue = await _store.TryGetValueAsync(request.Key);
 
-            if (previousOutputValue is null)
+            if (previousCalculationValue is null)
             {
                 var defaultValue = CalculationValue.GetDefault(_clock);
 
-                await _store.UpsertValueAsync(request.Key, CalculationValue.GetDefault(_clock));
-
                 return await HandleResponse(
-                    new Response(
-                        computed_value: defaultValue.Value,
-                        input_value: request.InputValue,
-                        previous_value: previousOutputValue?.Value
-                    ),
+                    request,
+                    defaultValue,
+                    previousCalculationValue,
                     cancellationToken
                 );
             }
 
-            var nextValue = previousOutputValue.CalculateNextValue(_clock, request.InputValue);
+            try
+            {
+                var nextCalculationValue = previousCalculationValue.CalculateNextValue(
+                    _clock,
+                    request.InputValue
+                );
 
-            await _store.UpsertValueAsync(
-                request.Key,
-                previousOutputValue.CalculateNextValue(_clock, request.InputValue)
-            );
+                return await HandleResponse(
+                    request,
+                    nextCalculationValue,
+                    previousCalculationValue,
+                    cancellationToken
+                );
+            }
+            catch (OverflowException ex)
+            {
+                // TODO: how to handle this error?
 
-            return await HandleResponse(
-                new Response(
-                    computed_value: nextValue.Value,
-                    input_value: request.InputValue,
-                    previous_value: previousOutputValue?.Value
-                ),
-                cancellationToken
-            );
+                _logger.LogError(ex, "Returning defalt value");
+
+                var defaultValue = CalculationValue.GetDefault(_clock);
+
+                return await HandleResponse(
+                    request,
+                    defaultValue,
+                    previousCalculationValue,
+                    cancellationToken
+                );
+            }
         }
 
-        async Task<Response> HandleResponse(Response response, CancellationToken cancellationToken)
+        async Task<Response> HandleResponse(
+            Request request,
+            CalculationValue nextCalculationValue,
+            CalculationValue? previousCalculationValue,
+            CancellationToken cancellationToken
+        )
         {
+            await _store.UpsertValueAsync(request.Key, nextCalculationValue);
+
             await _bus.Publish(
                 new MagicValueCalculationResultMessage(
-                    computed_value: response.computed_value,
-                    input_value: response.input_value,
-                    previous_value: response.previous_value
+                    computed_value: nextCalculationValue.Value,
+                    input_value: request.InputValue,
+                    previous_value: previousCalculationValue?.Value
                 ),
                 cancellationToken
             );
 
-            _messagePublisher.Publish("my-queue-worker", $"{response.computed_value}");
+            _messagePublisher.Publish("my-queue-worker", nextCalculationValue.Value);
 
-            return response;
+            return new Response(
+                computed_value: nextCalculationValue.Value,
+                input_value: request.InputValue,
+                previous_value: previousCalculationValue?.Value
+            );
         }
     }
 }

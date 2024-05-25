@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Abstraction.MessageBus;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -17,9 +18,9 @@ public class RabbitMqConsumer : IMessageConsumer
         _channel = _connection.CreateModel();
     }
 
-    public async Task StartConsuming(
+    public async Task StartConsuming<T>(
         string queueName,
-        Action<string> onMessageReceived,
+        Action<T?> onMessageReceived,
         CancellationToken cancellationToken
     )
     {
@@ -35,7 +36,7 @@ public class RabbitMqConsumer : IMessageConsumer
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            onMessageReceived(message);
+            onMessageReceived(JsonConvert.DeserializeObject<T>(message));
         };
 
         _channel.BasicConsume(queue: queueName, autoAck: true, consumer: _consumer);

@@ -4,6 +4,7 @@ using Core.Features.MagicCalculation.Domain;
 using FluentAssertions;
 using Infrastructure.KeyValueStore;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
@@ -19,12 +20,14 @@ public class MagicValueCalculationWorkflowTests
         var store = new KeyValueStoreInMemory<int, CalculationValue>();
         var bus = new Mock<IBus>();
         var messagePublisher = new Mock<IMessagePublisher>();
+        var logger = new Mock<ILogger<MagicValueCalculationWorkflow>>();
 
         var workflow = new MagicValueCalculationWorkflow.RequestHandler(
             clock,
             store,
             bus.Object,
-            messagePublisher.Object
+            messagePublisher.Object,
+            logger.Object
         );
 
         await workflow.Handle(

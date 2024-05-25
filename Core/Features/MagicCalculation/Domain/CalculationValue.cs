@@ -21,16 +21,8 @@ public record CalculationValue(decimal Value, Instant UpdatedAt)
         if (IsExpired(clock))
             return GetDefault(clock);
 
-        try
-        {
-            var outputValue = MagicCalculator.CalculateOutputValue(inputValue, Value);
+        var outputValue = MagicCalculator.CalculateOutputValue(inputValue, Value);
 
-            return new CalculationValue(Value: outputValue, UpdatedAt: clock.GetCurrentInstant());
-        }
-        catch (OverflowException _)
-        {
-            // TODO: how to handle this error?
-            return GetDefault(clock);
-        }
+        return new CalculationValue(Value: outputValue, UpdatedAt: clock.GetCurrentInstant());
     }
 }

@@ -2,9 +2,9 @@
 
 public interface IMessageConsumer
 {
-    Task StartConsuming(
+    Task StartConsuming<T>(
         string queueName,
-        Action<string> onMessageReceived,
+        Action<T?> onMessageReceived,
         CancellationToken cancellationToken
     );
 }

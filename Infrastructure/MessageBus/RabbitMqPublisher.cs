@@ -26,6 +26,7 @@ internal class RabbitMqPublisher : IMessagePublisher
             autoDelete: false,
             arguments: null
         );
+
         var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
 
         _channel.BasicPublish(

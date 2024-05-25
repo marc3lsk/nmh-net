@@ -14,7 +14,7 @@ public class MagicValueCalculationResultMessageConsumerWorker : BackgroundServic
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        await _messageConsumer.StartConsuming(
+        await _messageConsumer.StartConsuming<decimal?>(
             "my-queue-worker",
             msg =>
             {
