@@ -5,11 +5,16 @@ namespace Core.Features.MagicCalculation.Domain;
 
 public record CalculationValue(decimal Value, Instant UpdatedAt)
 {
+    public const decimal DEFAULT_VALUE = 2;
+    public const int EXPIRATION_IN_SECONDS = 15;
+
     public static CalculationValue GetDefault(IClock clock) =>
-        new CalculationValue(Value: 2, UpdatedAt: clock.GetCurrentInstant());
+        new CalculationValue(Value: DEFAULT_VALUE, UpdatedAt: clock.GetCurrentInstant());
 
     public bool IsExpired(IClock clock) =>
-        UpdatedAt.CompareTo(clock.GetCurrentInstant().Minus(Duration.FromSeconds(15))) < 0;
+        UpdatedAt.CompareTo(
+            clock.GetCurrentInstant().Minus(Duration.FromSeconds(EXPIRATION_IN_SECONDS))
+        ) < 0;
 
     public CalculationValue CalculateNextValue(IClock clock, decimal inputValue)
     {

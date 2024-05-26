@@ -42,7 +42,7 @@ public class MagicValueCalculationWorkflow
         {
             var previousCalculationValue = await _store.TryGetValueAsync(request.Key);
 
-            if (previousCalculationValue is null)
+            if (request.InputValue == 0 || previousCalculationValue is null)
             {
                 var defaultValue = CalculationValue.GetDefault(_clock);
 
