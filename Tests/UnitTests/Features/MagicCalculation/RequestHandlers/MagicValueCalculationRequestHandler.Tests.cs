@@ -48,7 +48,7 @@ public class MagicValueCalculationRequestHandlerTests
 
         var storedOutputValueWithDefaultOutputValue = await store.TryGetValueAsync(1);
 
-        storedOutputValueWithDefaultOutputValue!.Value.Should().Be(2);
+        storedOutputValueWithDefaultOutputValue!.Value.Should().Be(CalculationValue.DEFAULT_VALUE);
 
         await requestHandler.Handle(
             new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
@@ -64,7 +64,7 @@ public class MagicValueCalculationRequestHandlerTests
 
         storedOutputValueAfterFirstCalculation!.Value.Should().Be(outputValueAfterFirstCalculation);
 
-        clock.Advance(Duration.FromSeconds(16));
+        clock.Advance(Duration.FromSeconds(CalculationValue.EXPIRATION_IN_SECONDS + 1));
 
         await requestHandler.Handle(
             new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
@@ -73,6 +73,6 @@ public class MagicValueCalculationRequestHandlerTests
 
         var storedOutputValueAfterExpiration = await store.TryGetValueAsync(1);
 
-        storedOutputValueAfterExpiration!.Value.Should().Be(2);
+        storedOutputValueAfterExpiration!.Value.Should().Be(CalculationValue.DEFAULT_VALUE);
     }
 }
