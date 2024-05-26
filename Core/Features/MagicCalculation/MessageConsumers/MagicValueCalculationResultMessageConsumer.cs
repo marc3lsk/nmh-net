@@ -16,7 +16,7 @@ public class MagicValueCalculationResultMessageConsumer
     public Task Consume(ConsumeContext<MagicValueCalculationResultMessage> context)
     {
         Console.WriteLine(
-            $"{nameof(MagicValueCalculationResultMessageConsumer)} received: {context.Message.computed_value}"
+            $"{nameof(MagicValueCalculationResultMessageConsumer)} received: {context.Message.ComputedValue}"
         );
         return Task.CompletedTask;
     }

@@ -96,9 +96,9 @@ public class MagicValueCalculationRequestHandler
 
             await _bus.Publish(
                 new MagicValueCalculationResultMessage(
-                    computed_value: nextCalculationValue.Value,
-                    input_value: request.InputValue,
-                    previous_value: previousCalculationValue?.Value
+                    ComputedValue: nextCalculationValue.Value,
+                    InputValue: request.InputValue,
+                    PreviousValue: previousCalculationValue?.Value
                 ),
                 cancellationToken
             );
