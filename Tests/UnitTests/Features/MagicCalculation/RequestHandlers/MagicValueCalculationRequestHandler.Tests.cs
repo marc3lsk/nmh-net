@@ -1,4 +1,5 @@
 ﻿using Abstraction.MessageBus;
+using Core.Features.MagicCalculation.Contracts;
 using Core.Features.MagicCalculation.Domain;
 using Core.Features.MagicCalculation.Helpers;
 using Core.Features.MagicCalculation.RequestHandlers;
@@ -23,7 +24,7 @@ public class MagicValueCalculationRequestHandlerTests
         var messagePublisher = new Mock<IMessagePublisher>();
         var logger = new Mock<ILogger<MagicValueCalculationRequestHandler>>();
 
-        var workflow = new MagicValueCalculationRequestHandler.RequestHandler(
+        var requestHandler = new MagicValueCalculationRequestHandler.RequestHandler(
             clock,
             store,
             bus.Object,
@@ -31,16 +32,25 @@ public class MagicValueCalculationRequestHandlerTests
             logger.Object
         );
 
-        await workflow.Handle(
+        await requestHandler.Handle(
             new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
+        );
+
+        bus.Verify(
+            bus =>
+                bus.Publish(
+                    It.IsAny<MagicValueCalculationResultMessage>(),
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Once
         );
 
         var storedOutputValueWithDefaultOutputValue = await store.TryGetValueAsync(1);
 
         storedOutputValueWithDefaultOutputValue!.Value.Should().Be(2);
 
-        await workflow.Handle(
+        await requestHandler.Handle(
             new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
         );
@@ -56,7 +66,7 @@ public class MagicValueCalculationRequestHandlerTests
 
         clock.Advance(Duration.FromSeconds(16));
 
-        await workflow.Handle(
+        await requestHandler.Handle(
             new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
         );
