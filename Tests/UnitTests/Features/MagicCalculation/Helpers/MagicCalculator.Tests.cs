@@ -1,15 +1,15 @@
-﻿using Core.Features.MagicCalculation.BusinessLogic;
+﻿using Core.Features.MagicCalculation.Helpers;
 using FluentAssertions;
 using OfficeOpenXml;
 
-namespace UnitTests.Features.MagicCalculation.BusinessLogic;
+namespace UnitTests.Features.MagicCalculation.Helpers;
 
 public class MagicCalculatorTests
 {
     public static IEnumerable<object[]> GetTestData(string excelFilePath)
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        using (var package = new ExcelPackage(new System.IO.FileInfo(excelFilePath)))
+        using (var package = new ExcelPackage(new FileInfo(excelFilePath)))
         {
             var worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
             for (int row = 1; row <= worksheet.Dimension.End.Row; row++) // Skip header row
@@ -25,7 +25,7 @@ public class MagicCalculatorTests
     [Theory]
     [MemberData(
         nameof(GetTestData),
-        "./Features/MagicCalculation/BusinessLogic/MagicCalculatorTestData.xlsx",
+        "./Features/MagicCalculation/Helpers/MagicCalculatorTestData.xlsx",
         MemberType = typeof(MagicCalculatorTests)
     )]
     public void TestWithExcelValues(

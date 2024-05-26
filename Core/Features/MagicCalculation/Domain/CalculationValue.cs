@@ -1,4 +1,4 @@
-﻿using Core.Features.MagicCalculation.BusinessLogic;
+﻿using Core.Features.MagicCalculation.Helpers;
 using NodaTime;
 
 namespace Core.Features.MagicCalculation.Domain;

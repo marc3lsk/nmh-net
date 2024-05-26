@@ -1,5 +1,5 @@
-using Core.Features.MagicCalculation.BusinessLogic;
 using Core.Features.MagicCalculation.Contracts;
+using Core.Features.MagicCalculation.RequestHandlers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,7 @@ namespace WebApi.Controllers
         )
         {
             var response = await _mediator.Send(
-                new MagicValueCalculationWorkflow.Request(Key: key, InputValue: data.input)
+                new MagicValueCalculationRequestHandler.Request(Key: key, InputValue: data.input)
             );
 
             return new MagicValueCalculationEndpointResponse(

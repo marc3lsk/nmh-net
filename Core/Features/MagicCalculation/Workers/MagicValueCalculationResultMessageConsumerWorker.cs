@@ -1,7 +1,7 @@
 ﻿using Abstraction.MessageBus;
 using Microsoft.Extensions.Hosting;
 
-namespace Core.Features.MagicCalculation.BusinessLogic;
+namespace Core.Features.MagicCalculation.Workers;
 
 public class MagicValueCalculationResultMessageConsumerWorker : BackgroundService
 {

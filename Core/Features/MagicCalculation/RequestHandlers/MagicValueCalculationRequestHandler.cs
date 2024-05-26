@@ -7,9 +7,9 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 
-namespace Core.Features.MagicCalculation.BusinessLogic;
+namespace Core.Features.MagicCalculation.RequestHandlers;
 
-public class MagicValueCalculationWorkflow
+public class MagicValueCalculationRequestHandler
 {
     public record Request(int Key, decimal InputValue) : IRequest<Response>;
 
@@ -21,14 +21,14 @@ public class MagicValueCalculationWorkflow
         IKeyValueStore<int, CalculationValue> _store;
         IBus _bus;
         IMessagePublisher _messagePublisher;
-        ILogger<MagicValueCalculationWorkflow> _logger;
+        ILogger<MagicValueCalculationRequestHandler> _logger;
 
         public RequestHandler(
             IClock clock,
             IKeyValueStore<int, CalculationValue> store,
             IBus bus,
             IMessagePublisher messagePublisher,
-            ILogger<MagicValueCalculationWorkflow> logger
+            ILogger<MagicValueCalculationRequestHandler> logger
         )
         {
             _clock = clock;

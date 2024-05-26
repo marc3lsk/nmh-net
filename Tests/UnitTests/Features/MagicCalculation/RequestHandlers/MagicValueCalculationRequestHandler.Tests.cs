@@ -1,6 +1,7 @@
 ﻿using Abstraction.MessageBus;
-using Core.Features.MagicCalculation.BusinessLogic;
 using Core.Features.MagicCalculation.Domain;
+using Core.Features.MagicCalculation.Helpers;
+using Core.Features.MagicCalculation.RequestHandlers;
 using FluentAssertions;
 using Infrastructure.KeyValueStore;
 using MassTransit;
@@ -9,9 +10,9 @@ using Moq;
 using NodaTime;
 using NodaTime.Testing;
 
-namespace UnitTests.Features.MagicCalculation.BusinessLogic;
+namespace UnitTests.Features.MagicCalculation.RequestHandlers;
 
-public class MagicValueCalculationWorkflowTests
+public class MagicValueCalculationRequestHandlerTests
 {
     [Fact]
     public async Task It_Works()
@@ -20,9 +21,9 @@ public class MagicValueCalculationWorkflowTests
         var store = new KeyValueStoreInMemory<int, CalculationValue>();
         var bus = new Mock<IBus>();
         var messagePublisher = new Mock<IMessagePublisher>();
-        var logger = new Mock<ILogger<MagicValueCalculationWorkflow>>();
+        var logger = new Mock<ILogger<MagicValueCalculationRequestHandler>>();
 
-        var workflow = new MagicValueCalculationWorkflow.RequestHandler(
+        var workflow = new MagicValueCalculationRequestHandler.RequestHandler(
             clock,
             store,
             bus.Object,
@@ -31,7 +32,7 @@ public class MagicValueCalculationWorkflowTests
         );
 
         await workflow.Handle(
-            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
         );
 
@@ -40,7 +41,7 @@ public class MagicValueCalculationWorkflowTests
         storedOutputValueWithDefaultOutputValue!.Value.Should().Be(2);
 
         await workflow.Handle(
-            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
         );
 
@@ -56,7 +57,7 @@ public class MagicValueCalculationWorkflowTests
         clock.Advance(Duration.FromSeconds(16));
 
         await workflow.Handle(
-            new MagicValueCalculationWorkflow.Request(Key: 1, InputValue: 1),
+            new MagicValueCalculationRequestHandler.Request(Key: 1, InputValue: 1),
             default
         );
 

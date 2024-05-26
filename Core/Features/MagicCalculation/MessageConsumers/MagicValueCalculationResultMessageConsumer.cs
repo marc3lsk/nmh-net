@@ -1,7 +1,7 @@
 ﻿using Core.Features.MagicCalculation.Contracts;
 using MassTransit;
 
-namespace Core.Features.MagicCalculation.BusinessLogic;
+namespace Core.Features.MagicCalculation.MessageConsumers;
 
 public class MagicValueCalculationResultMessageConsumer
     : IConsumer<MagicValueCalculationResultMessage>

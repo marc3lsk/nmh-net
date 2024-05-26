@@ -1,6 +1,6 @@
 ﻿using Abstraction.MessageBus;
-using Core.Features.MagicCalculation.BusinessLogic;
 using Core.Features.MagicCalculation.Contracts;
+using Core.Features.MagicCalculation.MessageConsumers;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

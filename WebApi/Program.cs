@@ -1,6 +1,6 @@
 using Abstraction.KeyValueStore;
 using Core.Features.CMS.Persistence;
-using Core.Features.MagicCalculation.BusinessLogic;
+using Core.Features.MagicCalculation.Workers;
 using Infrastructure.KeyValueStore;
 using Infrastructure.MessageBus;
 using Microsoft.EntityFrameworkCore;

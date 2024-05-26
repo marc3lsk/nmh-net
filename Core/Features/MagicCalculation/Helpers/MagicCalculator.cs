@@ -1,4 +1,4 @@
-﻿namespace Core.Features.MagicCalculation.BusinessLogic;
+﻿namespace Core.Features.MagicCalculation.Helpers;
 
 public static class MagicCalculator
 {

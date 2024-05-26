@@ -10,11 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Features\MagicCalculation\BusinessLogic\MagicCalculatorTestData.xlsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Features\MagicCalculation\BusinessLogic\MagicCalculatorTestData.xlsx">
+    <Content Include="Features\MagicCalculation\Helpers\MagicCalculatorTestData.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
