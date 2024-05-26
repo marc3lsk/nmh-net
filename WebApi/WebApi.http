@@ -1,6 +1,10 @@
 @WebApi_HostAddress = https://localhost:12345
 
-GET {{WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{WebApi_HostAddress}}/calculation/1
+Content-Type: application/json; charset=UTF-8
+
+{
+    "input": 1
+}
 
 ###
